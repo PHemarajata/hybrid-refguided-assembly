@@ -309,8 +309,18 @@ process MAKE_CONSENSUS {
   bcftools index -f ${calls}
 
   # Apply variants + masks to build haploid consensus
-  bcftools consensus -f ${ref} -m ${mask} ${calls} > consensus.fa
+  bcftools consensus -f ${ref} -m ${mask} ${calls} > consensus_tmp.fa
+  
+  # Reheader the consensus FASTA with sample name as prefix
+  # Get original reference name and prepend sample name
+  original_name=\$(grep '^>' ${ref} | head -1 | sed 's/^>//')
+  sed "s/^>.*/>${params.sample}_\$original_name/" consensus_tmp.fa > consensus.fa
+  
+  # Index the final consensus
   samtools faidx consensus.fa
+  
+  # Clean up temporary file
+  rm consensus_tmp.fa
   """
 }
 

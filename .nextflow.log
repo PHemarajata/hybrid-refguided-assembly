@@ -1,0 +1,88 @@
+Sep-28 23:18:28.889 [main] DEBUG nextflow.cli.Launcher - $> nextflow run main.nf --ref /dev/null --r1 /dev/null --r2 /dev/null -preview
+Sep-28 23:18:28.991 [main] DEBUG nextflow.cli.CmdRun - N E X T F L O W  ~  version 25.04.6
+Sep-28 23:18:29.009 [main] DEBUG nextflow.plugin.PluginsFacade - Setting up plugin manager > mode=prod; embedded=false; plugins-dir=/home/phemarajata/.nextflow/plugins; core-plugins: nf-amazon@2.15.0,nf-azure@1.16.0,nf-cloudcache@0.4.3,nf-codecommit@0.2.3,nf-console@1.2.1,nf-google@1.21.1,nf-k8s@1.0.0,nf-tower@1.11.4,nf-wave@1.12.1
+Sep-28 23:18:29.028 [main] INFO  o.pf4j.DefaultPluginStatusProvider - Enabled plugins: []
+Sep-28 23:18:29.029 [main] INFO  o.pf4j.DefaultPluginStatusProvider - Disabled plugins: []
+Sep-28 23:18:29.030 [main] INFO  org.pf4j.DefaultPluginManager - PF4J version 3.12.0 in 'deployment' mode
+Sep-28 23:18:29.038 [main] INFO  org.pf4j.AbstractPluginManager - No plugins
+Sep-28 23:18:29.050 [main] DEBUG nextflow.config.ConfigBuilder - Found config local: /home/phemarajata/hybrid-refguided-assembly/nextflow.config
+Sep-28 23:18:29.052 [main] DEBUG nextflow.config.ConfigBuilder - Parsing config file: /home/phemarajata/hybrid-refguided-assembly/nextflow.config
+Sep-28 23:18:29.072 [main] DEBUG n.secret.LocalSecretsProvider - Secrets store: /home/phemarajata/.nextflow/secrets/store.json
+Sep-28 23:18:29.075 [main] DEBUG nextflow.secret.SecretsLoader - Discovered secrets providers: [nextflow.secret.LocalSecretsProvider@6999cd39] - activable => nextflow.secret.LocalSecretsProvider@6999cd39
+Sep-28 23:18:29.084 [main] DEBUG nextflow.config.ConfigBuilder - Applying config profile: `standard`
+Sep-28 23:18:29.514 [main] DEBUG nextflow.cli.CmdRun - Applied DSL=2 from script declaration
+Sep-28 23:18:29.525 [main] DEBUG nextflow.cli.CmdRun - * PREVIEW * null [trusting_minsky] DSL2 - revision: db407dc394
+Sep-28 23:18:29.526 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins default=[]
+Sep-28 23:18:29.526 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins resolved requirement=[]
+Sep-28 23:18:29.566 [main] DEBUG nextflow.Session - Session UUID: 2951a2a8-1727-4f87-83bd-51d3bb750f46
+Sep-28 23:18:29.567 [main] DEBUG nextflow.Session - Run name: trusting_minsky
+Sep-28 23:18:29.567 [main] DEBUG nextflow.Session - Executor pool size: 22
+Sep-28 23:18:29.576 [main] DEBUG nextflow.file.FilePorter - File porter settings maxRetries=3; maxTransfers=50; pollTimeout=null
+Sep-28 23:18:29.580 [main] DEBUG nextflow.util.ThreadPoolBuilder - Creating thread pool 'FileTransfer' minSize=10; maxSize=66; workQueue=LinkedBlockingQueue[-1]; allowCoreThreadTimeout=false
+Sep-28 23:18:29.598 [main] DEBUG nextflow.cli.CmdRun - 
+  Version: 25.04.6 build 5954
+  Created: 01-07-2025 11:27 UTC (18:27 ICST)
+  System: Linux 6.14.0-29-generic
+  Runtime: Groovy 4.0.26 on OpenJDK 64-Bit Server VM 22.0.1-internal-adhoc.conda.src
+  Encoding: UTF-8 (UTF-8)
+  Process: 3135674@phemarajata-Stealth-16-MercedesAMG-A1VGG [127.0.1.1]
+  CPUs: 22 - Mem: 62.3 GB (984.8 MB) - Swap: 8 GB (6.2 GB)
+Sep-28 23:18:29.621 [main] DEBUG nextflow.Session - Work-dir: /home/phemarajata/hybrid-refguided-assembly/work [ext2/ext3]
+Sep-28 23:18:29.622 [main] DEBUG nextflow.Session - Script base path does not exist or is not a directory: /home/phemarajata/hybrid-refguided-assembly/bin
+Sep-28 23:18:29.631 [main] DEBUG nextflow.executor.ExecutorFactory - Extension executors providers=[]
+Sep-28 23:18:29.638 [main] DEBUG nextflow.Session - Observer factory: DefaultObserverFactory
+Sep-28 23:18:29.642 [main] DEBUG nextflow.Session - Observer factory (v2): LinObserverFactory
+Sep-28 23:18:29.665 [main] DEBUG nextflow.cache.CacheFactory - Using Nextflow cache factory: nextflow.cache.DefaultCacheFactory
+Sep-28 23:18:29.672 [main] DEBUG nextflow.util.CustomThreadPool - Creating default thread pool > poolSize: 23; maxThreads: 1000
+Sep-28 23:18:29.713 [main] DEBUG nextflow.Session - Session start
+Sep-28 23:18:30.265 [main] DEBUG nextflow.script.ScriptRunner - > Launching execution
+Sep-28 23:18:30.297 [main] WARN  nextflow.Nextflow - Proceeding with Illumina-only workflow (no ONT input).
+Sep-28 23:18:30.365 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Sep-28 23:18:30.366 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Sep-28 23:18:30.370 [main] DEBUG nextflow.executor.Executor - [warm up] executor > local
+Sep-28 23:18:30.375 [main] DEBUG n.processor.LocalPollingMonitor - Creating local task monitor for executor 'local' > cpus=22; memory=62.3 GB; capacity=22; pollInterval=100ms; dumpInterval=5m
+Sep-28 23:18:30.377 [main] DEBUG n.processor.TaskPollingMonitor - >>> barrier register (monitor: local)
+Sep-28 23:18:30.395 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'INDEX_REF': maxForks=4; fair=false; array=0
+Sep-28 23:18:30.426 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Sep-28 23:18:30.426 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Sep-28 23:18:30.427 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'MAP_ILLUMINA': maxForks=4; fair=false; array=0
+Sep-28 23:18:30.433 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Sep-28 23:18:30.433 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Sep-28 23:18:30.434 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'ADD_RG_ILLUMINA': maxForks=4; fair=false; array=0
+Sep-28 23:18:30.439 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Sep-28 23:18:30.440 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Sep-28 23:18:30.440 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'MERGE_BAM': maxForks=4; fair=false; array=0
+Sep-28 23:18:30.446 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Sep-28 23:18:30.447 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Sep-28 23:18:30.447 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'CALL_VARIANTS': maxForks=4; fair=false; array=0
+Sep-28 23:18:30.454 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Sep-28 23:18:30.455 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Sep-28 23:18:30.455 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'MAKE_MASKS': maxForks=4; fair=false; array=0
+Sep-28 23:18:30.460 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Sep-28 23:18:30.461 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Sep-28 23:18:30.461 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'MAKE_CONSENSUS': maxForks=4; fair=false; array=0
+Sep-28 23:18:30.466 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Sep-28 23:18:30.466 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Sep-28 23:18:30.466 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'BCFTOOLS_STATS': maxForks=4; fair=false; array=0
+Sep-28 23:18:30.471 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Sep-28 23:18:30.471 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Sep-28 23:18:30.472 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'SAMTOOLS_STATS_ALL': maxForks=4; fair=false; array=0
+Sep-28 23:18:30.476 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Sep-28 23:18:30.477 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Sep-28 23:18:30.478 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'SAMTOOLS_STATS_ILLUM': maxForks=4; fair=false; array=0
+Sep-28 23:18:30.483 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Sep-28 23:18:30.484 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Sep-28 23:18:30.484 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'MULTIQC': maxForks=4; fair=false; array=0
+Sep-28 23:18:30.487 [main] DEBUG nextflow.Session - Workflow process names [dsl2]: MERGE_BAM, MAKE_MASKS, SAMTOOLS_STATS_ILLUM, BCFTOOLS_STATS, CALL_VARIANTS, MULTIQC, MAP_ONT, MAKE_CONSENSUS, ONT_BAM_TO_FASTQ, INDEX_REF, SAMTOOLS_STATS_ALL, MAP_ILLUMINA, ADD_RG_ILLUMINA, ADD_RG_ONT, SAMTOOLS_STATS_ONT
+Sep-28 23:18:30.489 [main] DEBUG nextflow.script.ScriptRunner - Parsed script files:
+  Script_5ee14cf2312c2a9b: /home/phemarajata/hybrid-refguided-assembly/main.nf
+Sep-28 23:18:30.495 [main] DEBUG n.trace.WorkflowStatsObserver - Workflow completed > WorkflowStats[succeededCount=0; failedCount=0; ignoredCount=0; cachedCount=0; pendingCount=0; submittedCount=0; runningCount=0; retriesCount=0; abortedCount=0; succeedDuration=0ms; failedDuration=0ms; cachedDuration=0ms;loadCpus=0; loadMemory=0; peakRunning=0; peakCpus=0; peakMemory=0; ]
+Sep-28 23:18:30.534 [main] DEBUG nextflow.cache.CacheDB - Closing CacheDB done
+Sep-28 23:18:30.549 [main] DEBUG nextflow.plugin.PluginsFacade - Using Default plugin manager
+Sep-28 23:18:30.552 [main] INFO  o.pf4j.DefaultPluginStatusProvider - Enabled plugins: []
+Sep-28 23:18:30.552 [main] INFO  o.pf4j.DefaultPluginStatusProvider - Disabled plugins: []
+Sep-28 23:18:30.552 [main] INFO  org.pf4j.DefaultPluginManager - PF4J version 3.12.0 in 'deployment' mode
+Sep-28 23:18:30.553 [main] DEBUG nextflow.cache.CacheFactory - Using Nextflow cache factory: nextflow.cache.DefaultCacheFactory
+Sep-28 23:18:30.559 [main] DEBUG nextflow.cache.CacheDB - Closing CacheDB done
+Sep-28 23:18:30.561 [main] DEBUG nextflow.util.ThreadPoolManager - Thread pool 'FileTransfer' shutdown completed (hard=false)
+Sep-28 23:18:30.561 [main] DEBUG nextflow.script.ScriptRunner - > Execution complete -- Goodbye

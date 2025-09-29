@@ -1,130 +1,145 @@
-# Hybrid Viral Consensus Pipeline (Illumina + ONT)  
+# Hybrid Reference-Guided Assembly Workflow
 
-A reproducible, modular Nextflow (DSL2) workflow to generate a **consensus viral genome** from **Illumina short reads** and optional **ONT (long) reads or BAM**, including coverage masking, terminal repeat handling, and QC reporting.
+## 🎯 Purpose
+This workflow performs **reference-guided consensus genome assembly** for viral datasets (e.g., **mpox Clade I**), supporting both **Illumina short reads** and **Oxford Nanopore long reads**.  
 
----
-
-## 🚀 Purpose
-
-- Generate a high‑confidence consensus sequence for a viral sample (e.g., mpox) by combining Illumina + ONT data.  
-- Mask low‑coverage and repeat (ITR) regions to avoid misleading confident calls in ambiguous zones.  
-- Provide QC metrics and summaries via **MultiQC**, per-platform depth stats, variant counts, etc.  
-- Be fully resumable, container‑aware (conda, Docker, Singularity), and thread‑efficient.
-
----
-
-## 🔍 Features
-
-- Accepts ONT input as **FASTQ(.gz)** or **BAM** (converts BAM → FASTQ internally).  
-- Maps Illumina (`-x sr`) and ONT (`-x map-ont`) reads with **minimap2**, sorts and indexes BAMs.  
-- Adds Read Groups (RG: ILLUM, ONT) for platform-aware stats and filtering.  
-- Merges alignments into a **hybrid BAM**.  
-- Calls variants with **bcftools** (haploid model) and **disambiguated DP filtering** (`FMT/DP < min_dp`).  
-- Builds a **mask BED** combining **low-coverage** regions + optional ITR BED merged  
-- Generates **consensus FASTA**, replacing masked regions with `N`.  
-- Computes platform-specific depth & stats (samtools), variant stats (bcftools), and aggregates via **MultiQC**.  
-- Supports multiple execution profiles: **conda**, **Docker**, **Singularity**.  
-- Fully resume-able: each logical step is isolated with input/output channels and caching.
+Key goals:
+- Generate a **haploid consensus genome**.
+- **Mask low coverage and repetitive ITR regions**.
+- Provide **QC summaries** for each platform.
+- Ensure **reproducibility** with containerization.
+- Remain **resumable** and **portable** across environments.
 
 ---
 
-## 📦 Repository Structure
+## ✨ Features
+- Supports **Illumina (FASTQ R1/R2)** + **ONT (FASTQ or BAM)** simultaneously.
+- Flexible read mapping with **minimap2** (`-x sr` and `-x map-ont` modes).
+- Read group tagging for platform separation (`ILLUM`, `ONT`).
+- Variant calling with **bcftools mpileup/call**, using disambiguated `DP` handling.
+- Mask creation:
+  - **Low coverage** sites (configurable cutoff, default DP<10).
+  - **ITR regions** (reference BED provided).
+- Consensus genome generation with **bcftools consensus**.
+- Per-platform stats with **samtools** and aggregation in **MultiQC**.
+- Fully resumable via Nextflow `-resume`.
+- Reproducible execution with **Docker container**:  
+  `phemarajata614/viral-consensus:1.0.1`.
 
+---
+
+## 📂 Repository Structure
 ```
-.
-├── main.nf                ← Nextflow pipeline
-├── nextflow.config        ← Configuration (threads, containers, profiles)
-├── README.md              ← This document
-└── workflows/             ← (optional) example input / test scenarios
+├── main.nf             # Main Nextflow pipeline
+├── nextflow.config     # Configuration (Docker, threads, defaults)
+├── README.md           # This document
+└── references/         # Bundled reference & ITR mask
+    ├── DQ011155.1.fasta
+    └── itr-1sided.bed
 ```
 
 ---
 
-## 🧩 Workflow Overview
-
-1. **Index Reference** (faidx)  
-2. **Map Illumina Reads** → sorted BAM  
-3. **Map ONT Reads** (if present; BAM → FASTQ → align) → sorted BAM  
-4. **Add Read Groups** to Illumina & ONT BAMs  
-5. **Merge** BAMs into a hybrid BAM  
-6. **Call Variants** using bcftools, using `FMT/DP`-based filtering  
-7. **Make Masks**: low-coverage BED + optional ITR BED merged  
-8. **Generate Consensus**: patch variants + mask = consensus FASTA  
-9. **Compute Stats**: samtools / bcftools per‑RG and combined  
-10. **MultiQC**: aggregate QC & stats into HTML report  
+## 🔄 Workflow Overview
+1. **Reference indexing** (`samtools faidx`)
+2. **Read mapping**
+   - Illumina → minimap2 (`-x sr`)
+   - ONT → minimap2 (`-x map-ont`)
+3. **Read group tagging** (`samtools addreplacerg`)
+4. **Merge BAMs** into hybrid alignment
+5. **Variant calling** (`bcftools mpileup/call`)
+6. **Mask generation** (low coverage + ITR BED)
+7. **Consensus building** (`bcftools consensus`)
+8. **Stats collection** (`samtools stats`, `depth`)
+9. **MultiQC report** summarizing results
 
 ---
 
-## 📥 Usage
+## 🚀 Quick Start (recommended: Docker profile)
 
+**Prereqs:** Nextflow ≥ 23.x and Docker installed.
+
+**Container:**  
+`phemarajata614/viral-consensus:1.0.1`
+
+**Bundled references:**  
+- `references/DQ011155.1.fasta` → Mpox Clade I reference  
+- `references/itr-1sided.bed` → 1-sided ITR mask  
+
+### Example (Hybrid Illumina + ONT)
 ```bash
-nextflow run main.nf   --ref /path/to/ref.fa   --r1 /path/to/sample_R1.fastq.gz   --r2 /path/to/sample_R2.fastq.gz   [--ont_fastq /path/to/ont.fastq.gz | --ont_bam /path/to/ont.bam]   [--itr_bed /path/to/itr_mask.bed]   --sample sample_name   --threads 16   --min_dp 10   --outdir results
+nextflow run main.nf -profile docker   --ref references/DQ011155.1.fasta   --r1  /home/phemarajata/hybrid-refguided-assembly/data/case2/mpxv_case2_250000111_S5_L001_R1_001.fastq.gz   --r2  /home/phemarajata/hybrid-refguided-assembly/data/case2/mpxv_case2_250000111_S5_L001_R2_001.fastq.gz   --ont_fastq /home/phemarajata/hybrid-refguided-assembly/data/case2/ont.filt.fastq   --itr_bed references/itr-1sided.bed   --sample mpxv_case2   --threads 20   --outdir /home/phemarajata/hybrid-refguided-assembly/data/case2/results
 ```
 
-- Use `-profile docker` or `-profile singularity` to run within containers.  
-- Use `-resume` for incremental workflow runs.  
-- Example (Illumina-only):
-  
-  ```bash
-  nextflow run main.nf     --ref ref.fa     --r1 R1.gz     --r2 R2.gz     --sample mysample     --outdir results_illumina
-  ```
-
----
-
-## 🗄️ Inputs
-
-| Name         | Description |
-|--------------|-------------|
-| `--ref`       | Reference FASTA (e.g. DQ011155.1) |
-| `--r1` / `--r2` | Illumina paired FASTQ (gzip OK) |
-| `--ont_fastq` | ONT long reads FASTQ (.gz) |
-| `--ont_bam`   | ONT-aligned BAM (alternative to FASTQ) |
-| `--itr_bed`   | BED file of terminal repeat region(s) to be masked |
-
----
-
-## 📦 Outputs (under `${outdir}`)
-
-```
-outdir/
-  00_ref/           ← reference + .fai  
-  10_map_illumina/  ← illumina.sorted.bam(.bai)  
-  20_map_ont/       ← ont.sorted.bam(.bai) or extracted FASTQ  
-  30_rg/            ← illumina.rg.bam(.bai), ont.rg.bam(.bai)  
-  40_merge/         ← hybrid.bam(.bai), per-RG stats, depth files  
-  50_variants/      ← calls.bcf(.csi), mask.bed, lowcov.bed  
-  60_consensus/     ← consensus.fa(.fai)  
-  70_multiqc/       ← multiqc_report.html + multiqc_data  
+### Example (Illumina-only)
+```bash
+nextflow run main.nf -profile docker   --ref references/DQ011155.1.fasta   --r1  /path/to/R1.fastq.gz   --r2  /path/to/R2.fastq.gz   --itr_bed references/itr-1sided.bed   --sample my_sample   --threads 16   --outdir results_illumina
 ```
 
 ---
 
-## 📝 Notes & Caveats
+## 🔧 Recommended Nextflow profile
+```groovy
+profiles {
+  docker {
+    docker.enabled = true
+    process.containerEngine = 'docker'
+    process.conda = false
+    process.container = 'phemarajata614/viral-consensus:1.0.1'
+  }
+}
+```
 
-- **Masking is essential**. Without a `mask.bed`, consensus will fill zero-coverage regions with reference, misleading downstream analysis.  
-- The VCF only captures **small variants** — large structural changes may not be included.  
-- ITRs (terminal repeats) can complicate mapping; mask or handle them explicitly.  
-- Tools like `bcftools consensus` require **indexed VCF/BCF**; we stage and/or (re)index to ensure that.  
-- MultiQC only writes a report if it detects at least one supported file in its input directory. Ensure your stats files are staged correctly.  
-- If ONT data is absent, the pipeline gracefully skips ONT steps and runs Illumina-only mode.  
-- The workflow assumes **single-sample, haploid viral genome**. Mixed infections or contamination may yield odd consensus calls.  
-- Be mindful of resource usage: `--threads` applies to mapping, indexing, and variant calling. Adjust per your machine.
+---
+
+## 🧾 Inputs
+
+| Param         | Required | Notes |
+|---------------|----------|-------|
+| `--ref`       | ✅ | Reference FASTA; Mpox Clade I provided. |
+| `--r1`, `--r2`| ✅ | Illumina paired FASTQs (`.gz` OK). |
+| `--ont_fastq` | optional | ONT long-read FASTQ. |
+| `--ont_bam`   | optional | ONT BAM; auto-converted to FASTQ. |
+| `--itr_bed`   | optional | Mask BED; ITR BED provided. |
+| `--sample`    | ✅ | Sample name (used in RG tags + outputs). |
+| `--threads`   | ✅ | CPU threads (propagated to key tools). |
+| `--outdir`    | ✅ | Output root directory. |
+
+---
+
+## 📦 Outputs
+
+- `00_ref/` → reference + index  
+- `10_map_illumina/` → Illumina BAMs  
+- `20_map_ont/` → ONT BAM/FASTQ  
+- `30_rg/` → read-group annotated BAMs  
+- `40_merge/` → merged hybrid BAM + stats  
+- `50_variants/` → calls.bcf, mask.bed  
+- `60_consensus/` → consensus.fa + index  
+- `70_multiqc/` → MultiQC report  
+
+---
+
+## ⚠️ Notes & Caveats
+- **Masking is essential**: without BED, consensus may double-count ITRs.  
+- **VCF-based consensus**: captures SNPs/indels but not structural events.  
+- **MultiQC** will only produce reports if expected stats files exist.  
+- **Single-sample assumption**: designed for haploid viral genomes.  
 
 ---
 
 ## 🧪 Testing & Validation
-
-- You can provide a small test dataset (e.g. subset of reads + known reference) in `workflows/test/` and run:
-
+- Try with bundled **mpox Clade I reference** + **test datasets**.  
+- Generate workflow DAG:  
   ```bash
-  nextflow run main.nf -profile test --ref test_ref.fa --r1 test_R1.gz --r2 test_R2.gz
-  ```
-
-- Use `-with-dag flowchart.svg` to visualize step dependencies.  
-- Inspect `work/<hash>/` for `.command.sh` and logs when a step fails.
+  nextflow run main.nf -profile docker -with-dag flowchart.png
+  ```  
+- Inspect task scripts:  
+  ```bash
+  less work/<hash>/.command.sh
+  ```  
 
 ---
 
 ## ✅ Summary
-
-This pipeline gives you a robust, reproducible way to go from raw Illumina + ONT (or ONT BAM) to a high-confidence, masked viral consensus sequence, plus QC summaries and platform-aware depth metrics. It is portable, resumable, and built for typical viral genomics conditions like mpox (ITRs, low coverage, mixed data types).
+This workflow provides a **robust, reproducible, containerized method** for generating viral consensus genomes from hybrid Illumina + ONT data. It is especially suited to **mpox Clade I** with **ITR complexity**, but the design is generalizable.  

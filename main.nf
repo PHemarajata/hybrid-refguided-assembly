@@ -20,7 +20,7 @@ params.min_dp       = 10
 params.baseq        = 20
 params.mapq         = 20
 params.max_depth    = 100000
-params.threads      = 16
+params.threads      = 120
 params.outdir       = 'results'
 params.itr_bed      = null
 params.mask_lowcov  = true
@@ -144,7 +144,7 @@ process ADD_RG_ILLUMINA {
 
   script:
   """
-  samtools addreplacerg -r ID:ILLUM -r PL:ILLUMINA -r SM:${params.sample} -o illumina.rg.bam ${bam}
+  samtools addreplacerg -@ ${task.cpus} -r ID:ILLUM -r PL:ILLUMINA -r SM:${params.sample} -o illumina.rg.bam ${bam}
   samtools index -@ ${task.cpus} illumina.rg.bam
   """
 }
@@ -164,7 +164,7 @@ process ADD_RG_ONT {
 
   script:
   """
-  samtools addreplacerg -r ID:ONT -r PL:ONT -r SM:${params.sample} -o ont.rg.bam ${bam}
+  samtools addreplacerg -@ ${task.cpus} -r ID:ONT -r PL:ONT -r SM:${params.sample} -o ont.rg.bam ${bam}
   samtools index -@ ${task.cpus} ont.rg.bam
   """
 }
@@ -226,7 +226,7 @@ process CALL_VARIANTS {
   | bcftools filter -s LowCov -e 'FMT/DP<${params.min_dp}' -Ou \
   | bcftools norm -f ${ref} -Ob -o calls.bcf
 
-  bcftools index calls.bcf
+  bcftools index --threads ${task.cpus} calls.bcf
   """
 }
 
@@ -256,22 +256,7 @@ process MAKE_MASKS {
     : > lowcov.bed
   """
   def merge_cmd = itr_bed.name != 'OPTIONAL_FILE' ? """
-    cat lowcov.bed ${itr_bed} | awk 'BEGIN{FS=OFS="\\t"params.ref          = null
-params.r1           = null
-params.r2           = null
-params.ont_fastq    = null
-params.ont_bam      = null
-params.sample       = 'sample'
-params.min_dp       = 10
-params.baseq        = 20
-params.mapq         = 20
-params.max_depth    = 100000
-params.threads      = 16
-params.outdir       = 'results'
-params.itr_bed      = null
-params.mask_lowcov  = true
-params.multiqc_name   = "multiqc_report"
-params.multiqc_outdir = 'results/multiqc'} NF>=3 && \$2~/^[0-9]+\$/ && \$3~/^[0-9]+\$/ && \$3>\$2 {print \$1,\$2,\$3}' \
+    cat lowcov.bed ${itr_bed} | awk 'BEGIN{FS=OFS="\\t"} NF>=3 && \$2~/^[0-9]+\$/ && \$3~/^[0-9]+\$/ && \$3>\$2 {print \$1,\$2,\$3}' \
       | sort -k1,1 -k2,2n -k3,3n \
       | bedtools merge -i - > mask.bed
   """ : """
@@ -306,7 +291,7 @@ process MAKE_CONSENSUS {
   script:
   """
   # Ensure index is present/valid (belt & suspenders)
-  bcftools index -f ${calls}
+  bcftools index --threads ${task.cpus} -f ${calls}
 
   # Apply variants + masks to build haploid consensus
   bcftools consensus -f ${ref} -m ${mask} ${calls} > consensus_tmp.fa
@@ -343,7 +328,7 @@ process BCFTOOLS_STATS {
 
   script:
   """
-  bcftools stats -F ${ref} ${calls} > bcftools.stats.txt
+  bcftools stats --threads ${task.cpus} -F ${ref} ${calls} > bcftools.stats.txt
   """
 }
 

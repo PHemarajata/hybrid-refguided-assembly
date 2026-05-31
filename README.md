@@ -55,7 +55,7 @@ Key goals:
 
 ---
 
-## 🚀 Quick Start (recommended: Docker profile)
+## 🚀 Quick Start
 
 **Prereqs:** Nextflow ≥ 23.x and Docker installed.
 
@@ -68,26 +68,45 @@ Key goals:
 
 ### Example (Hybrid Illumina + ONT)
 ```bash
-nextflow run main.nf -profile docker   --ref references/DQ011155.1.fasta   --r1  /home/phemarajata/hybrid-refguided-assembly/data/case2/mpxv_case2_250000111_S5_L001_R1_001.fastq.gz   --r2  /home/phemarajata/hybrid-refguided-assembly/data/case2/mpxv_case2_250000111_S5_L001_R2_001.fastq.gz   --ont_fastq /home/phemarajata/hybrid-refguided-assembly/data/case2/ont.filt.fastq   --itr_bed references/itr-1sided.bed   --sample mpxv_case2   --threads 20   --outdir /home/phemarajata/hybrid-refguided-assembly/data/case2/results
+nextflow run main.nf -profile laptop \
+  --ref references/DQ011155.1.fasta \
+  --r1  /path/to/R1.fastq.gz \
+  --r2  /path/to/R2.fastq.gz \
+  --ont_fastq /path/to/ont.fastq.gz \
+  --itr_bed references/itr-1sided.bed \
+  --sample my_sample \
+  --outdir data/my_sample/results
 ```
 
 ### Example (Illumina-only)
 ```bash
-nextflow run main.nf -profile docker   --ref references/DQ011155.1.fasta   --r1  /path/to/R1.fastq.gz   --r2  /path/to/R2.fastq.gz   --itr_bed references/itr-1sided.bed   --sample my_sample   --threads 16   --outdir results_illumina
+nextflow run main.nf -profile laptop \
+  --ref references/DQ011155.1.fasta \
+  --r1  /path/to/R1.fastq.gz \
+  --r2  /path/to/R2.fastq.gz \
+  --itr_bed references/itr-1sided.bed \
+  --sample my_sample \
+  --outdir data/my_sample/results
 ```
 
 ---
 
-## 🔧 Recommended Nextflow profile
-```groovy
-profiles {
-  docker {
-    docker.enabled = true
-    process.containerEngine = 'docker'
-    process.conda = false
-    process.container = 'phemarajata614/viral-consensus:1.0.1'
-  }
-}
+## 🔧 Hardware Profiles
+
+Select the profile that matches your machine with `-profile <name>`. Thread count and memory limits are set automatically — no need to pass `--threads`.
+
+| Profile | Target machine | CPUs | Memory | maxForks |
+| ------- | ------------- | ---- | ------ | -------- |
+| `laptop` | 22-core workstation / laptop (62 GB RAM) | 18 | 52 GB | 2 |
+| `a100` | A100 workstation (128-core, 512 GB RAM) | 120 | 480 GB | 1 |
+| `docker` | Generic / CI (override with `--threads`) | 16 | 16 GB | 4 |
+
+```bash
+# Laptop / local workstation
+nextflow run main.nf -profile laptop ...
+
+# A100 high-memory workstation
+nextflow run main.nf -profile a100 ...
 ```
 
 ---
